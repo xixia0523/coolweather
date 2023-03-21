@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class City {
-    @PrimaryKey
-    @NonNull
+    @PrimaryKey(autoGenerate = true)
+
     private int id;
     private String cityName;
     private int provinceId;
@@ -29,15 +29,6 @@ public class City {
 
     public void setCityCode(int cityCode) {
         this.cityCode = cityCode;
-    }
-
-    public City(int id, String cityName, int provinceId) {
-        this.id = id;
-        this.cityName = cityName;
-        this.provinceId = provinceId;
-    }
-
-    public City() {
     }
 
     public int getId() {

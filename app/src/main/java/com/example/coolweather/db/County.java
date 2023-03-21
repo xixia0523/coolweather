@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey;
 @Entity
 
 public class County {
-    @PrimaryKey
-    @NonNull
+    @PrimaryKey(autoGenerate = true)
     private int id;
     private String countyName;
     private String weatherId;
@@ -56,13 +55,5 @@ public class County {
         this.cityId = cityId;
     }
 
-    public County(int id, String countyName, String weatherId, int cityId) {
-        this.id = id;
-        this.countyName = countyName;
-        this.weatherId = weatherId;
-        this.cityId = cityId;
-    }
 
-    public County() {
-    }
 }

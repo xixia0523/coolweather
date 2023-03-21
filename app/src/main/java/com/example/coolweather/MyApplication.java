@@ -26,7 +26,7 @@ public class MyApplication extends Application {
                 .build();
     }
 
-    public weatherDatabase getBooKDB(){
+    public weatherDatabase getWeatherdatabase(){
         return weatherdatabase;
     }
 }
