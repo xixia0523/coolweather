@@ -17,7 +17,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.room.Insert;
 
 import com.example.coolweather.db.City;
 import com.example.coolweather.db.County;
@@ -33,7 +32,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class ChooseAreaFragement  extends Fragment {
+public class ChooseAreaFragment extends Fragment {
+    private static final String TAG = "ChooseAreaFragment";
     public static  final int LEVEL_PROVINCE=0;
     public static final int LEVEL_CITY=1;
     public static final int LEVEL_COUNTY=2;
@@ -83,11 +83,20 @@ public class ChooseAreaFragement  extends Fragment {
                     queryCounties();
                 } else if (currentLevel==LEVEL_COUNTY) {
                     String weatherId=countyList.get(position).getWeatherId();
-                    Intent intent=new Intent(getActivity(),WeatherActivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if(getActivity() instanceof MainActivity){
+                        Intent intent=new Intent(getActivity(),WeatherActivity.class);
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        Toast.makeText(getContext(), "跳转成功", Toast.LENGTH_SHORT).show();
+                        getActivity().finish();
+                    }
+                    else if(getActivity() instanceof WeatherActivity){
+                        WeatherActivity weatherActivity=(WeatherActivity)getActivity();
+                        weatherActivity.drawerLayout.closeDrawers();
+                        weatherActivity.refreshLayout.setRefreshing(true);
+                        weatherActivity.requestWeather(weatherId);
 
+                    }
                 }
             }
         });
