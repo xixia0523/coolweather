@@ -172,7 +172,7 @@ public class ChooseAreaFragement  extends Fragment {
     private void queryCounties() {
         title_text.setText(selectedCity.getCityName());
         bt_back.setVisibility(View.VISIBLE);
-        countyList=MyApplication.getInstance().getWeatherdatabase().countyDao().getCountyList();
+        countyList=MyApplication.getInstance().getWeatherdatabase().countyDao().getCountyList(selectedCity.getId());
         if(countyList.size()>0){
             Toast.makeText(getContext(), "country", Toast.LENGTH_SHORT).show();
             display_data.clear();
@@ -194,7 +194,7 @@ public class ChooseAreaFragement  extends Fragment {
     private void queryCities() {
         title_text.setText(selectedProvince.getProvinceName());
         bt_back.setVisibility(View.VISIBLE);
-        cityList=MyApplication.getInstance().getWeatherdatabase().cityDao().getCityList();
+        cityList=MyApplication.getInstance().getWeatherdatabase().cityDao().getCityList(selectedProvince.getId());
         if(cityList.size()>0){
             Toast.makeText(getContext(), "city", Toast.LENGTH_SHORT).show();
             display_data.clear();

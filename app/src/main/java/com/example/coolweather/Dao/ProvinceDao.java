@@ -10,7 +10,7 @@ import java.util.List;
 
 @Dao
 public interface ProvinceDao {
-    @Query("select * from Province")
+    @Query("select * from Province ")
     List<Province> getProvinceList();
 
     @Insert

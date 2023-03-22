@@ -10,8 +10,8 @@ import java.util.List;
 
 @Dao
 public interface CountyDao {
-    @Query("select * from County")
-    List<County> getCountyList();
+    @Query("select * from County where cityId=:cityId")
+    List<County> getCountyList(int cityId);
 
     @Insert
     void insertCounty(County county);

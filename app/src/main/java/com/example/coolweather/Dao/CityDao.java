@@ -12,8 +12,8 @@ import java.util.List;
 
 @Dao
 public interface CityDao {
-    @Query("select * from city")
-    List<City> getCityList();
+    @Query("select * from city where provinceId=:provinceId")
+    List<City> getCityList(int provinceId);
     @Delete
     void deleteCity(City city);
     @Insert
