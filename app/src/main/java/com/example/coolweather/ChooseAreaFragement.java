@@ -1,6 +1,7 @@
 package com.example.coolweather;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.room.Insert;
 
 import com.example.coolweather.db.City;
 import com.example.coolweather.db.County;
@@ -79,6 +81,13 @@ public class ChooseAreaFragement  extends Fragment {
                     Log.d("TAG2", "当前的页面等级为： "+currentLevel);
                     selectedCity=cityList.get(position);
                     queryCounties();
+                } else if (currentLevel==LEVEL_COUNTY) {
+                    String weatherId=countyList.get(position).getWeatherId();
+                    Intent intent=new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
+
                 }
             }
         });
