@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,8 @@ import com.example.coolweather.gson.Weather;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.Utility;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
@@ -38,6 +41,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
+    //测试WeatherActivity页面使用
     private static final String TAG = "WeatherActivity";
     private ScrollView weatherLayout;
     private TextView titleCity;
@@ -59,6 +63,7 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //动态消除应用标题栏
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -105,13 +110,14 @@ public class WeatherActivity extends AppCompatActivity {
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(mWeatherId);
         }
+
+        //刷新组件绑定刷新事件
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 requestWeather(mWeatherId);
             }
         });
-
 
         String bingPicUrl = defaultSharedPreferences.getString("bing_url", null);
         if (bingPicUrl != null) {
@@ -122,12 +128,44 @@ public class WeatherActivity extends AppCompatActivity {
 
     }
 
+    //动态加载每一天的必应图片地址
     private void loadBingPic() {
-        String requestBingPic = "https://cn.bing.com/th?id=OHR.PFNPAZ_ZH-CN7929165864_1920x1080.jpg&rf=LaDigue_1920x1080.jpg";
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor edit = defaultSharedPreferences.edit();
-        edit.putString("bing_url", requestBingPic);
-        Glide.with(this).load(requestBingPic).into(bingPicImg);
+        String image_json_url="https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";
+        String bing_url="https://www.bing.com";
+        HttpUtil.sendOkHttpRequest(image_json_url, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.d(TAG, "加载图片失败: ");
+                Toast.makeText(WeatherActivity.this, "加载图片连接失败", Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String response_text=response.body().string();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonObject=new JSONObject(response_text);
+                            String image_url = jsonObject.getJSONArray("images").getJSONObject(0).getString("url");
+                            SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
+                            SharedPreferences.Editor edit = defaultSharedPreferences.edit();
+                            String requestBingPic= bing_url+image_url;
+                            edit.putString("bing_url", requestBingPic);
+                            Glide.with(WeatherActivity.this).load(requestBingPic).into(bingPicImg);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+
+
+
+            }
+        });
+
+
+
     }
 
     public void requestWeather(final String weather_id) {
