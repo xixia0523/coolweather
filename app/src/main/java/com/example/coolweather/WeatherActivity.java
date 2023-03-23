@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.room.Insert;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.coolweather.gson.Daily_forecast;
 import com.example.coolweather.gson.Weather;
+import com.example.coolweather.service.AutoUpdateService;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.Utility;
 
@@ -87,8 +90,8 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText = findViewById(R.id.car_wash_text);
         sportText = findViewById(R.id.sport_text);
         bingPicImg = findViewById(R.id.bing_pic_img);
-        drawerLayout=findViewById(R.id.drawer_layout);
-        navbutton=findViewById(R.id.nav_button);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navbutton = findViewById(R.id.nav_button);
 
 
         navbutton.setOnClickListener(new View.OnClickListener() {
@@ -130,27 +133,29 @@ public class WeatherActivity extends AppCompatActivity {
 
     //动态加载每一天的必应图片地址
     private void loadBingPic() {
-        String image_json_url="https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";
-        String bing_url="https://www.bing.com";
+        String image_json_url = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";
+        String bing_url = "https://www.bing.com";
         HttpUtil.sendOkHttpRequest(image_json_url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.d(TAG, "加载图片失败: ");
                 Toast.makeText(WeatherActivity.this, "加载图片连接失败", Toast.LENGTH_SHORT).show();
             }
+
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String response_text=response.body().string();
+                String response_text = response.body().string();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            JSONObject jsonObject=new JSONObject(response_text);
+                            JSONObject jsonObject = new JSONObject(response_text);
                             String image_url = jsonObject.getJSONArray("images").getJSONObject(0).getString("url");
                             SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
                             SharedPreferences.Editor edit = defaultSharedPreferences.edit();
-                            String requestBingPic= bing_url+image_url;
+                            String requestBingPic = bing_url + image_url;
                             edit.putString("bing_url", requestBingPic);
+                            edit.apply();
                             Glide.with(WeatherActivity.this).load(requestBingPic).into(bingPicImg);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -158,13 +163,8 @@ public class WeatherActivity extends AppCompatActivity {
 
                     }
                 });
-
-
-
             }
         });
-
-
 
     }
 
@@ -197,7 +197,7 @@ public class WeatherActivity extends AppCompatActivity {
                             edit.apply();
                             mWeatherId = weather.basic.cid;
                             showWeatherInfo(weather);
-                            weatherLayout.setVisibility(View.VISIBLE);
+
                         } else {
                             Toast.makeText(WeatherActivity.this, "数据返回为空，加载失败", Toast.LENGTH_SHORT).show();
                         }
@@ -242,5 +242,8 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText.setText(carwash);
         comfortText.setText(comfort);
         sportText.setText(sport);
+        weatherLayout.setVisibility(View.VISIBLE);
+        Intent intent=new Intent(this, AutoUpdateService.class);
+        startService(intent);
     }
 }
